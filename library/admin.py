@@ -1,3 +1,10 @@
 from django.contrib import admin
 
+from .models import Customer, Borrow, Librarian, Book, Collection
+
 # Register your models here.
+admin.site.register(Customer)
+admin.site.register(Borrow)
+admin.site.register(Librarian)
+admin.site.register(Book)
+admin.site.register(Collection)
