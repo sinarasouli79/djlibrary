@@ -28,11 +28,11 @@ class Customer(models.Model):
 
 
 class Borrow(models.Model):
-    customer = models.OneToOneField(Customer, on_delete=models.PROTECT)
+    customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
     book = models.OneToOneField(Book, on_delete=models.PROTECT)
-    borrow_date = models.DateTimeField(auto_now_add=True)
-    expected_return_date = models.DateTimeField()
-    actual_return_date = models.DateTimeField(null=True, blank=True)
+    borrow_date = models.DateField(auto_now_add=True)
+    expected_return_date = models.DateField()
+    actual_return_date = models.DateField(null=True, blank=True)
 
 
 class Penalties(models.Model):
