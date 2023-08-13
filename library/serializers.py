@@ -3,7 +3,7 @@ import datetime
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from library.models import Borrow, Collection, Penalties
+from library.models import Borrow, Collection, Penalties, Customer, Book
 
 
 class CreateBorrowSerializer(serializers.ModelSerializer):
@@ -70,3 +70,34 @@ class UpdateBorrowSerializer(serializers.ModelSerializer):
     class Meta:
         model = Borrow
         fields = ['actual_return_date']
+
+
+class BookSerializer(serializers.ModelSerializer):
+    collection = serializers.StringRelatedField()
+
+    borrow_counter = serializers.SerializerMethodField()
+
+    def get_borrow_counter(self, book):
+        return Borrow.objects.filter(book=book).count()
+
+    class Meta:
+        model = Book
+        fields = ['id', 'title', 'borrow_counter', 'borrow_inventory', 'buy_inventory', 'collection']
+
+
+class BorrowListSerializer(serializers.ModelSerializer):
+    book = BookSerializer()
+
+    class Meta:
+        model = Borrow
+        fields = ['id', 'book', 'borrow_date', 'expected_return_date', 'actual_return_date']
+
+
+class CustomerListSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
+    borrow_set = BorrowListSerializer(many=True)
+
+    class Meta:
+        model = Customer
+        fields = ['id', 'user', 'balance', 'is_ban', 'borrow_set']
+        depth = 3

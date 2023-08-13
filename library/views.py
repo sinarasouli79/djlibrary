@@ -2,9 +2,9 @@ from rest_framework import mixins
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 
-from library.models import Borrow
+from library.models import Borrow, Customer
 from library.permissions import IsLibrarian
-from library.serializers import CreateBorrowSerializer, UpdateBorrowSerializer
+from library.serializers import CreateBorrowSerializer, UpdateBorrowSerializer, CustomerListSerializer
 
 
 # Create your views here.
@@ -26,3 +26,10 @@ class BorrowViewSet(mixins.CreateModelMixin,
             return UpdateBorrowSerializer
         else:
             return CreateBorrowSerializer
+
+
+class CustomerListView(mixins.ListModelMixin,
+                       GenericViewSet):
+    permission_classes = [IsAuthenticated, IsLibrarian]
+    queryset = Customer.objects.select_related('user').prefetch_related('borrow_set__book__collection').all()
+    serializer_class = CustomerListSerializer
