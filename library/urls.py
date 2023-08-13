@@ -1,7 +1,7 @@
-from django.urls import path
+from rest_framework.routers import DefaultRouter
 
-from library.views import CreateBorrow
+from library.views import BorrowViewSet
 
-urlpatterns = [
-    path('borrow/', CreateBorrow.as_view())
-]
+router = DefaultRouter()
+router.register('borrow', BorrowViewSet, basename='borrow')
+urlpatterns = router.urls
