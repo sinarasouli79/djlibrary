@@ -154,5 +154,10 @@ CELERY_BEAT_SCHEDULE = {
     'deduct_dail_borrowing_price_schedule': {
         'task': 'library.tasks.deduct_dail_borrowing_price_schedule',
         'schedule': crontab(hour=3, minute=0)
+    },
+    'deduct_penalty_price_schedule': {
+        'task': 'library.tasks.deduct_penalty_price_schedule',
+        'schedule': crontab(hour=3, minute=0)
     }
+
 }

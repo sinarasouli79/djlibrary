@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.conf import settings
 from django.db import models
 
@@ -43,15 +45,8 @@ class Borrow(models.Model):
     expected_return_date = models.DateField()
     actual_return_date = models.DateField(null=True, blank=True)
 
-    # def clean_expected_return_date(self, expected_return_date):
-    #     subtract = expected_return_date - self.borrow_date
-    #     if subtract.days < 0:
-    #         raise models.ValidationError('invalid return date(return date should be after borrow date)')
-    #
-    #     return expected_return_date
-
 
 class Penalties(models.Model):
     date = models.DateField(auto_now_add=True)
-    customer = models.OneToOneField(Customer, on_delete=models.PROTECT)
-    borrow = models.OneToOneField(Borrow, on_delete=models.PROTECT)
+    borrow = models.ForeignKey(Borrow, on_delete=models.PROTECT)
+    price = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal(10.00))
