@@ -1,7 +1,10 @@
+from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework import mixins
+from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 
+from library.filters import CustomerFilter
 from library.models import Borrow, Customer
 from library.permissions import IsLibrarian
 from library.serializers import CreateBorrowSerializer, UpdateBorrowSerializer, CustomerListSerializer
@@ -33,3 +36,6 @@ class CustomerListView(mixins.ListModelMixin,
     permission_classes = [IsAuthenticated, IsLibrarian]
     queryset = Customer.objects.select_related('user').prefetch_related('borrow_set__book__collection').all()
     serializer_class = CustomerListSerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_class = CustomerFilter
+    search_fields = ['borrow__book__title', 'borrow__book__collection__title', ]
