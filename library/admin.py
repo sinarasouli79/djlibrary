@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Customer, Borrow, Librarian, Book, Collection, Penalties
+from .models import Customer, Borrow, Librarian, Book, Collection, Penalties, Buy
 
 # Register your models here.
 admin.site.register(Customer)
@@ -9,3 +9,4 @@ admin.site.register(Librarian)
 admin.site.register(Book)
 admin.site.register(Collection)
 admin.site.register(Penalties)
+admin.site.register(Buy)

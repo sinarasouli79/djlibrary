@@ -1,11 +1,13 @@
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework import mixins
+from rest_framework.decorators import api_view
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from library.filters import CustomerFilter
-from library.models import Borrow, Customer, Buy
+from library.models import Borrow, Customer, Buy, Collection
 from library.permissions import IsLibrarian
 from library.serializers import CreateBorrowSerializer, UpdateBorrowSerializer, CustomerListSerializer, \
     CreateBuySerializer
@@ -47,3 +49,21 @@ class BuyCreateView(mixins.CreateModelMixin,
     permission_classes = [IsAuthenticated, IsLibrarian]
     queryset = Buy.objects.all()
     serializer_class = CreateBuySerializer
+
+
+@api_view()
+def report(request, *args, **kwargs):
+    collections_profit = {}
+    collections = Collection.objects.all()
+    for collection in collections:
+        collections_profit[collection.title] = {'borrow': 0, 'buy': 0}
+
+    borrows = Borrow.objects.select_related('book__collection')
+    for borrow in borrows:
+        collections_profit[borrow.book.collection.title]['borrow'] += borrow.book.collection.borrow_price
+
+    buys = Buy.objects.select_related('book__collection')
+    for buy in buys:
+        collections_profit[buy.book.collection.title]['buy'] += buy.book.buy_price
+
+    return Response(collections_profit)
