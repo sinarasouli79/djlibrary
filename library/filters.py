@@ -29,6 +29,8 @@ class CustomerFilter(FilterSet):
 class BookFilter(FilterSet):
     class Meta:
         model = Book
-        fields = {'collection': ['gte', 'lte'], 'borrow_inventory': ['gte', 'lte'], 'buy_inventory': ['gte', 'lte'],
+        fields = {'collection': ['exact', ],
+                  'borrow_inventory': ['gte', 'lte'],
+                  'buy_inventory': ['gte', 'lte'],
                   'buy_price': ['gte', 'lte']
                   }
