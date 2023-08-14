@@ -3,7 +3,7 @@ import datetime
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from library.models import Borrow, Collection, Penalties, Customer, Book
+from library.models import Borrow, Collection, Penalties, Customer, Book, Buy
 
 
 class CreateBorrowSerializer(serializers.ModelSerializer):
@@ -101,3 +101,24 @@ class CustomerListSerializer(serializers.ModelSerializer):
         model = Customer
         fields = ['id', 'user', 'balance', 'is_ban', 'borrow_set']
         depth = 3
+
+
+class CreateBuySerializer(serializers.ModelSerializer):
+    def create(self, validated_data):
+        customer = validated_data.get('customer')
+        book = validated_data.get('book')
+        if book.buy_inventory == 0:
+            raise serializers.ValidationError({'book': 'buy inventory is low'})
+        if customer.balance >= book.buy_price:
+            customer.balance -= book.buy_price
+            book.buy_inventory -= 1
+            customer.save()
+            book.save()
+        else:
+            raise serializers.ValidationError({"customer": 'customer inventory is low'})
+
+        return super().create(validated_data)
+
+    class Meta:
+        model = Buy
+        fields = ['id', 'customer', 'book', 'buy_date']

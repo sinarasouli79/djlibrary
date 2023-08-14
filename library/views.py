@@ -5,9 +5,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import GenericViewSet
 
 from library.filters import CustomerFilter
-from library.models import Borrow, Customer
+from library.models import Borrow, Customer, Buy
 from library.permissions import IsLibrarian
-from library.serializers import CreateBorrowSerializer, UpdateBorrowSerializer, CustomerListSerializer
+from library.serializers import CreateBorrowSerializer, UpdateBorrowSerializer, CustomerListSerializer, \
+    CreateBuySerializer
 
 
 # Create your views here.
@@ -39,3 +40,10 @@ class CustomerListView(mixins.ListModelMixin,
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = CustomerFilter
     search_fields = ['borrow__book__title', 'borrow__book__collection__title', ]
+
+
+class BuyCreateView(mixins.CreateModelMixin,
+                    GenericViewSet):
+    permission_classes = [IsAuthenticated, IsLibrarian]
+    queryset = Buy.objects.all()
+    serializer_class = CreateBuySerializer
