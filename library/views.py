@@ -1,16 +1,16 @@
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework import mixins
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from library.filters import CustomerFilter
-from library.models import Borrow, Customer, Buy, Collection
+from library.filters import CustomerFilter, BookFilter
+from library.models import Borrow, Customer, Buy, Collection, Book
 from library.permissions import IsLibrarian
 from library.serializers import CreateBorrowSerializer, UpdateBorrowSerializer, CustomerListSerializer, \
-    CreateBuySerializer
+    CreateBuySerializer, BookSerializer
 
 
 # Create your views here.
@@ -51,8 +51,24 @@ class BuyCreateView(mixins.CreateModelMixin,
     serializer_class = CreateBuySerializer
 
 
+class BookViewSet(mixins.ListModelMixin,
+                  GenericViewSet):
+    permission_classes = [IsAuthenticated, IsLibrarian]
+    queryset = Book.objects.select_related('collection').all()
+    serializer_class = BookSerializer
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    filterset_class = BookFilter
+    search_fields = ['title', 'collection__title', ]
+
+    @action(detail=False)
+    def buyable(self, request):
+        queryset = Book.objects.select_related('collection').filter(buy_inventory__gt=0)
+        serializer = BookSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+
 @api_view()
-def report(request, *args, **kwargs):
+def report(request, *args, **kwargs):  # todo add permissions
     collections_profit = {}
     collections = Collection.objects.all()
     for collection in collections:

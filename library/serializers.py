@@ -122,3 +122,11 @@ class CreateBuySerializer(serializers.ModelSerializer):
     class Meta:
         model = Buy
         fields = ['id', 'customer', 'book', 'buy_date']
+
+
+class BookSerializer(serializers.ModelSerializer):
+    collection = serializers.StringRelatedField()
+
+    class Meta:
+        model = Book
+        fields = ['id', 'title', 'borrow_inventory', 'buy_inventory', 'buy_price', 'collection']
