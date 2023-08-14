@@ -83,6 +83,7 @@ class BookSerializer(serializers.ModelSerializer):
     class Meta:
         model = Book
         fields = ['id', 'title', 'borrow_counter', 'borrow_inventory', 'buy_inventory', 'collection']
+        ref_name = 'LibrarySerializer'
 
 
 class BorrowListSerializer(serializers.ModelSerializer):
