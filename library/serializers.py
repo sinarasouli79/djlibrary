@@ -39,7 +39,7 @@ class CreateBorrowSerializer(serializers.ModelSerializer):
         if borrowed_in_last_30_days < 3:
             borrowed_in_last_30_days = 3
 
-        max_borrow_date = (((30 * inventory) // inventory) + borrowed_in_last_30_days) + 1
+        max_borrow_date = ((30 * inventory) // (inventory + borrowed_in_last_30_days)) + 1
 
         today = datetime.date.today()
         subtract = expected_return_date - today
