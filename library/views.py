@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework import mixins
 from rest_framework.decorators import api_view, action
@@ -10,7 +11,7 @@ from library.filters import CustomerFilter, BookFilter
 from library.models import Borrow, Customer, Buy, Collection, Book
 from library.permissions import IsLibrarian
 from library.serializers import CreateBorrowSerializer, UpdateBorrowSerializer, CustomerListSerializer, \
-    CreateBuySerializer, BookSerializer
+    CreateBuySerializer, BookSerializer, CustomerPenaltiesListSerializer
 
 
 # Create your views here.
@@ -37,11 +38,19 @@ class BorrowViewSet(mixins.CreateModelMixin,
 class CustomerListView(mixins.ListModelMixin,
                        GenericViewSet):
     permission_classes = [IsAuthenticated, IsLibrarian]
-    queryset = Customer.objects.select_related('user').prefetch_related('borrow_set__book__collection').all()
+    queryset = Customer.objects.select_related('user').prefetch_related('borrow_set__book__collection',
+                                                                        'penalties_set').all().annotate(
+        penalties_count=Count('penalties'))
     serializer_class = CustomerListSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = CustomerFilter
     search_fields = ['borrow__book__title', 'borrow__book__collection__title', ]
+
+    @action(detail=False)
+    def penalties(self, request):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = CustomerPenaltiesListSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class BuyCreateView(mixins.CreateModelMixin,

@@ -50,6 +50,7 @@ class Borrow(models.Model):
 class Penalties(models.Model):
     date = models.DateField(auto_now_add=True)
     borrow = models.ForeignKey(Borrow, on_delete=models.PROTECT)
+    customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
     price = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal(10.00))
 
 

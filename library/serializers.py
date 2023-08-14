@@ -99,8 +99,15 @@ class CustomerListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Customer
-        fields = ['id', 'user', 'balance', 'is_ban', 'borrow_set']
-        depth = 3
+        fields = ['id', 'user', 'balance', 'is_ban', 'borrow_set', ]
+
+
+class CustomerPenaltiesListSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
+
+    class Meta:
+        model = Customer
+        fields = ['id', 'user', 'balance', 'is_ban', 'penalties_set']
 
 
 class CreateBuySerializer(serializers.ModelSerializer):
