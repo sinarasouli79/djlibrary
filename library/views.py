@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view, action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
 from library.filters import CustomerFilter, BookFilter
 from library.models import Borrow, Customer, Buy, Collection, Book
@@ -61,15 +61,20 @@ class BuyCreateView(mixins.CreateModelMixin,
     serializer_class = CreateBuySerializer
 
 
-class BookViewSet(mixins.ListModelMixin,
-                  GenericViewSet):
-    permission_classes = [IsAuthenticated, IsLibrarian]
+class BookViewSet(ModelViewSet):
     queryset = Book.objects.select_related('collection').prefetch_related('borrow_set').annotate(
         borrow_count=Count('borrow'))
     serializer_class = BookSerializer
     filter_backends = [SearchFilter, DjangoFilterBackend]
     filterset_class = BookFilter
     search_fields = ['title', 'collection__title', ]
+    http_method_names = ['get', 'post', 'put', 'delete', 'head', 'options']
+
+    def get_permissions(self):
+        if self.request.method in ['POST', 'PUT', 'DELETE']:
+            return [IsLibrarian()]
+        else:
+            return [IsAuthenticated()]
 
     @action(detail=False)
     def buyable(self, request):

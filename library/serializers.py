@@ -8,7 +8,7 @@ from library.models import Borrow, Collection, Penalties, Customer, Book, Buy
 
 class BookSerializer(serializers.ModelSerializer):
     collection = serializers.StringRelatedField()
-    borrow_count = serializers.IntegerField()
+    borrow_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Book
