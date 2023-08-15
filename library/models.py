@@ -29,6 +29,12 @@ class Book(models.Model):
 class Librarian(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
+    def save(self, *args, **kwargs):
+        user = self.user
+        user.is_librarian = True
+        user.save()
+        return super().save(*args, **kwargs)
+
 
 class Customer(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
