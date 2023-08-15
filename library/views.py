@@ -16,15 +16,24 @@ from library.serializers import CreateBorrowSerializer, UpdateBorrowSerializer, 
 
 # Create your views here.
 class BorrowViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticated, IsLibrarian]
     http_method_names = ['patch', 'get', 'post', 'delete', 'head', 'options']
 
     def get_queryset(self):
+        user_is_librarian = self.request.user.is_librarian
         queryset = Borrow.objects.select_related('customer__user', 'book__collection')
         if self.request.method == 'PATCH':
-            return queryset.filter(actual_return_date__isnull=True)
+            queryset = queryset.filter(actual_return_date__isnull=True)
+        elif self.request.method in ['POST', 'GET']:
+            if not user_is_librarian:
+                queryset = queryset.filter(customer__user=self.request.user)
+
+        return queryset
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [IsAuthenticated()]
         else:
-            return queryset
+            return [IsAuthenticated(), IsLibrarian()]
 
     def get_serializer_class(self):
         if self.request.method == 'PATCH':
@@ -33,9 +42,6 @@ class BorrowViewSet(ModelViewSet):
             return BorrowListSerializer
         else:
             return CreateBorrowSerializer
-
-    # def get_permissions(self):
-    #     if self.request.method ==
 
 
 class CustomerListView(mixins.ListModelMixin,
