@@ -65,7 +65,7 @@ class BookViewSet(mixins.ListModelMixin,
                   GenericViewSet):
     permission_classes = [IsAuthenticated, IsLibrarian]
     queryset = Book.objects.select_related('collection').prefetch_related('borrow_set').annotate(
-        borrow_count=Count('borrow__id'))
+        borrow_count=Count('borrow'))
     serializer_class = BookSerializer
     filter_backends = [SearchFilter, DjangoFilterBackend]
     filterset_class = BookFilter

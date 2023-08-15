@@ -38,15 +38,15 @@ class CustomerFilter(FilterSet):
 
 
 class BookFilter(FilterSet):
-    borrow_count_gte = NumberFilter(label='borrow_count_gte', method='filter_borrow_count_gte')
-    borrow_count_lte = NumberFilter(label='borrow_count_lte', method='filter_borrow_count_lte')
+    borrow_count_gte = NumberFilter(label='borrow_count_gte', method='filter_borrow_count')
+    borrow_count_lte = NumberFilter(label='borrow_count_lte', method='filter_borrow_count')
 
-    def filter_borrow_count_gte(self, queryset, name, value):
-        queryset = queryset.annotate(borrow_count=Count('borrow')).filter(borrow_count__gte=value)
-        return queryset
-
-    def filter_borrow_count_lte(self, queryset, name, value):
-        queryset = queryset.annotate(borrow_count=Count('borrow')).filter(borrow_count__lte=value)
+    def filter_borrow_count(self, queryset, name, value):
+        queryset = queryset.annotate(borrow_count=Count('borrow'))
+        if name == 'borrow_count_gte':
+            queryset = queryset.filter(borrow_count__gte=value)
+        else:
+            queryset = queryset.filter(borrow_count__lte=value)
         return queryset
 
     class Meta:
