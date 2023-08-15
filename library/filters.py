@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django_filters import FilterSet, NumberFilter
 
 from library.models import Customer, Book
@@ -27,10 +28,21 @@ class CustomerFilter(FilterSet):
 
 
 class BookFilter(FilterSet):
+    borrow_count_gte = NumberFilter(label='borrow_count_gte', method='filter_borrow_count_gte')
+    borrow_count_lte = NumberFilter(label='borrow_count_lte', method='filter_borrow_count_lte')
+
+    def filter_borrow_count_gte(self, queryset, name, value):
+        queryset = queryset.annotate(borrow_count=Count('borrow')).filter(borrow_count__gte=value)
+        return queryset
+
+    def filter_borrow_count_lte(self, queryset, name, value):
+        queryset = queryset.annotate(borrow_count=Count('borrow')).filter(borrow_count__lte=value)
+        return queryset
+
     class Meta:
         model = Book
         fields = {'collection': ['exact', ],
                   'borrow_inventory': ['gte', 'lte'],
                   'buy_inventory': ['gte', 'lte'],
-                  'buy_price': ['gte', 'lte']
+                  'buy_price': ['gte', 'lte'],
                   }

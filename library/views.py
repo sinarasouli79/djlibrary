@@ -63,7 +63,7 @@ class BuyCreateView(mixins.CreateModelMixin,
 class BookViewSet(mixins.ListModelMixin,
                   GenericViewSet):
     permission_classes = [IsAuthenticated, IsLibrarian]
-    queryset = Book.objects.select_related('collection').all()
+    queryset = Book.objects.select_related('collection').prefetch_related('borrow_set').all()
     serializer_class = BookSerializer
     filter_backends = [SearchFilter, DjangoFilterBackend]
     filterset_class = BookFilter

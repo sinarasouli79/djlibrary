@@ -135,6 +135,12 @@ class CreateBuySerializer(serializers.ModelSerializer):
 class BookSerializer(serializers.ModelSerializer):
     collection = serializers.StringRelatedField()
 
+    borrow_count = serializers.SerializerMethodField()
+
+    def get_borrow_count(self, book):
+        count = book.borrow_set.count()
+        return count if count else 0
+
     class Meta:
         model = Book
-        fields = ['id', 'title', 'borrow_inventory', 'buy_inventory', 'buy_price', 'collection']
+        fields = ['id', 'title', 'borrow_inventory', 'buy_inventory', 'buy_price', 'borrow_count', 'collection']
