@@ -16,10 +16,11 @@ from library.serializers import CreateBorrowSerializer, UpdateBorrowSerializer, 
 
 # Create your views here.
 class BorrowViewSet(mixins.CreateModelMixin,
+                    mixins.ListModelMixin,
                     mixins.UpdateModelMixin,
                     GenericViewSet):
     permission_classes = [IsAuthenticated, IsLibrarian]
-    http_method_names = ['patch', 'post', 'head', 'options']
+    http_method_names = ['patch', 'get', 'post', 'head', 'options']
 
     def get_queryset(self):
 
@@ -39,8 +40,8 @@ class CustomerListView(mixins.ListModelMixin,
                        GenericViewSet):
     permission_classes = [IsAuthenticated, IsLibrarian]
     queryset = Customer.objects.select_related('user').prefetch_related('borrow_set__book__collection',
-                                                                        'penalties_set').all().annotate(
-        penalties_count=Count('penalties'))
+                                                                        'penalties_set', ).all().annotate(
+        penalties_count=Count('penalties'), borrow_count=Count('borrow'))
     serializer_class = CustomerListSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = CustomerFilter
@@ -63,7 +64,8 @@ class BuyCreateView(mixins.CreateModelMixin,
 class BookViewSet(mixins.ListModelMixin,
                   GenericViewSet):
     permission_classes = [IsAuthenticated, IsLibrarian]
-    queryset = Book.objects.select_related('collection').prefetch_related('borrow_set').all()
+    queryset = Book.objects.select_related('collection').prefetch_related('borrow_set').annotate(
+        borrow_count=Count('borrow__id'))
     serializer_class = BookSerializer
     filter_backends = [SearchFilter, DjangoFilterBackend]
     filterset_class = BookFilter
