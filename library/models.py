@@ -2,6 +2,8 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.db import models
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 
 
 # Create your models here.
@@ -34,6 +36,12 @@ class Librarian(models.Model):
         user.is_librarian = True
         user.save()
         return super().save(*args, **kwargs)
+
+    @receiver(pre_delete, sender='library.Librarian')
+    def librarian_pre_delete(sender, instance, **kwargs):
+        user = instance.user
+        user.is_librarian = False
+        user.save()
 
 
 class Customer(models.Model):
