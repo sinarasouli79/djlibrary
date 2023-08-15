@@ -11,29 +11,31 @@ from library.filters import CustomerFilter, BookFilter
 from library.models import Borrow, Customer, Buy, Collection, Book
 from library.permissions import IsLibrarian
 from library.serializers import CreateBorrowSerializer, UpdateBorrowSerializer, CustomerListSerializer, \
-    CreateBuySerializer, BookSerializer, CustomerPenaltiesListSerializer
+    CreateBuySerializer, BookSerializer, CustomerPenaltiesListSerializer, BorrowListSerializer
 
 
 # Create your views here.
-class BorrowViewSet(mixins.CreateModelMixin,
-                    mixins.ListModelMixin,
-                    mixins.UpdateModelMixin,
-                    GenericViewSet):
+class BorrowViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, IsLibrarian]
-    http_method_names = ['patch', 'get', 'post', 'head', 'options']
+    http_method_names = ['patch', 'get', 'post', 'delete', 'head', 'options']
 
     def get_queryset(self):
-
+        queryset = Borrow.objects.select_related('customer__user', 'book__collection')
         if self.request.method == 'PATCH':
-            return Borrow.objects.filter(actual_return_date__isnull=True)
+            return queryset.filter(actual_return_date__isnull=True)
         else:
-            return Borrow.objects.all()
+            return queryset
 
     def get_serializer_class(self):
         if self.request.method == 'PATCH':
             return UpdateBorrowSerializer
+        if self.request.method == 'GET':
+            return BorrowListSerializer
         else:
             return CreateBorrowSerializer
+
+    # def get_permissions(self):
+    #     if self.request.method ==
 
 
 class CustomerListView(mixins.ListModelMixin,

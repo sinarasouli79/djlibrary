@@ -81,12 +81,22 @@ class UpdateBorrowSerializer(serializers.ModelSerializer):
         fields = ['actual_return_date']
 
 
+class SimpleCustomerSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField()
+
+    class Meta:
+        model = Customer
+        fields = ['id', 'user', 'balance', 'is_ban']
+
+
 class BorrowListSerializer(serializers.ModelSerializer):
-    # book = BookSerializer()
+    book = BookSerializer()
+
+    customer = SimpleCustomerSerializer()
 
     class Meta:
         model = Borrow
-        fields = ['id', 'book', 'borrow_date', 'expected_return_date', 'actual_return_date']
+        fields = ['id', 'customer', 'book', 'borrow_date', 'expected_return_date', 'actual_return_date']
 
 
 class CustomerListSerializer(serializers.ModelSerializer):

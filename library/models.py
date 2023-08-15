@@ -35,9 +35,6 @@ class Customer(models.Model):
     balance = models.DecimalField(max_digits=5, decimal_places=2)
     is_ban = models.BooleanField(default=False)
 
-    def __str__(self):
-        return f'{self.user.first_name}-{self.user.last_name}'
-
 
 class Borrow(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.PROTECT)
