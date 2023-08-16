@@ -142,3 +142,12 @@ class CreateBuySerializer(serializers.ModelSerializer):
     class Meta:
         model = Buy
         fields = ['id', 'customer', 'book', 'buy_date']
+
+
+class BuySerializer(serializers.ModelSerializer):
+    customer = SimpleCustomerSerializer()
+    book = BookSerializer()
+
+    class Meta:
+        model = Buy
+        fields = ['id', 'customer', 'book', 'buy_date']

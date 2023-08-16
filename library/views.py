@@ -11,7 +11,8 @@ from library.filters import CustomerFilter, BookFilter, BorrowFilter
 from library.models import Borrow, Customer, Buy, Collection, Book
 from library.permissions import IsLibrarian
 from library.serializers import CreateBorrowSerializer, UpdateBorrowSerializer, CustomerListSerializer, \
-    CreateBuySerializer, BookSerializer, CustomerPenaltiesListSerializer, BorrowListSerializer, CollectionSerializer
+    CreateBuySerializer, BookSerializer, CustomerPenaltiesListSerializer, BorrowListSerializer, CollectionSerializer, \
+    BuySerializer
 
 
 # Create your views here.
@@ -66,11 +67,29 @@ class CustomerListView(mixins.ListModelMixin,
         return Response(serializer.data)
 
 
-class BuyCreateView(mixins.CreateModelMixin,
-                    GenericViewSet):
-    permission_classes = [IsAuthenticated, IsLibrarian]
-    queryset = Buy.objects.all()
-    serializer_class = CreateBuySerializer
+class BuyViewSet(ModelViewSet):
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    search_fields = ['^customer__user__first_name', '^customer__user__last_name', '^customer__user__username',
+                     '^book__title']
+
+    def get_queryset(self):
+        user = self.request.user
+        queryset = Buy.objects.select_related('book__collection', 'customer__user').all()
+        if not user.is_librarian:
+            queryset = queryset.filter(customer__user=user)
+
+        return queryset
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return BuySerializer
+
+        return CreateBuySerializer
+
+    def get_permissions(self):
+        if self.request.method in ['DELETE', 'PUT', 'PATCH']:
+            return [IsAuthenticated(), IsLibrarian()]
+        return [IsAuthenticated()]
 
 
 class BookViewSet(ModelViewSet):
