@@ -1,7 +1,7 @@
 from django.db.models import Count
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework import mixins
-from rest_framework.decorators import api_view, action
+from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -96,7 +96,8 @@ class BookViewSet(ModelViewSet):
 
 
 @api_view()
-def report(request, *args, **kwargs):  # todo add permissions
+@permission_classes([IsAuthenticated, IsLibrarian])
+def report(request, *args, **kwargs):
     collections_profit = {}
     collections = Collection.objects.all()
     for collection in collections:
