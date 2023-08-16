@@ -1,7 +1,7 @@
 from django.db.models import Count
 from django_filters import FilterSet, NumberFilter
 
-from library.models import Customer, Book
+from library.models import Customer, Book, Borrow
 
 
 class CustomerFilter(FilterSet):
@@ -56,3 +56,19 @@ class BookFilter(FilterSet):
                   'buy_inventory': ['gte', 'lte'],
                   'buy_price': ['gte', 'lte'],
                   }
+
+
+class BorrowFilter(FilterSet):
+    class Meta:
+        model = Borrow
+        fields = {
+            'borrow_date': ['gte', 'lte'],
+            'expected_return_date': ['gte', 'lte'],
+            'actual_return_date': ['gte', 'lte', 'isnull'],
+            'book__borrow_inventory': ['gte', 'lte'],
+            'book__buy_inventory': ['gte', 'lte'],
+            'book__buy_price': ['gte', 'lte'],
+            'book__collection__borrow_price': ['gte', 'lte'],
+            'book__collection__borrow_limit': ['gte', 'lte'],
+            'customer': ['exact']
+        }

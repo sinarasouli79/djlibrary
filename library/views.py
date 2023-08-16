@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 
-from library.filters import CustomerFilter, BookFilter
+from library.filters import CustomerFilter, BookFilter, BorrowFilter
 from library.models import Borrow, Customer, Buy, Collection, Book
 from library.permissions import IsLibrarian
 from library.serializers import CreateBorrowSerializer, UpdateBorrowSerializer, CustomerListSerializer, \
@@ -17,6 +17,10 @@ from library.serializers import CreateBorrowSerializer, UpdateBorrowSerializer, 
 # Create your views here.
 class BorrowViewSet(ModelViewSet):
     http_method_names = ['patch', 'get', 'post', 'delete', 'head', 'options']
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    search_fields = ['book__title', 'book__collection__title', 'customer__user__first_name',
+                     'customer__user__last_name']
+    filterset_class = BorrowFilter
 
     def get_queryset(self):
         user_is_librarian = self.request.user.is_librarian

@@ -6,8 +6,14 @@ from rest_framework import serializers
 from library.models import Borrow, Collection, Penalties, Customer, Book, Buy
 
 
+class CollectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Collection
+        fields = ['id', 'title', 'borrow_price', 'borrow_limit']
+
+
 class BookSerializer(serializers.ModelSerializer):
-    collection = serializers.StringRelatedField()
+    collection = CollectionSerializer(read_only=True)
     borrow_count = serializers.IntegerField(read_only=True)
 
     class Meta:
