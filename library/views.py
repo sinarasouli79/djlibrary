@@ -11,7 +11,7 @@ from library.filters import CustomerFilter, BookFilter, BorrowFilter
 from library.models import Borrow, Customer, Buy, Collection, Book
 from library.permissions import IsLibrarian
 from library.serializers import CreateBorrowSerializer, UpdateBorrowSerializer, CustomerListSerializer, \
-    CreateBuySerializer, BookSerializer, CustomerPenaltiesListSerializer, BorrowListSerializer
+    CreateBuySerializer, BookSerializer, CustomerPenaltiesListSerializer, BorrowListSerializer, CollectionSerializer
 
 
 # Create your views here.
@@ -93,6 +93,17 @@ class BookViewSet(ModelViewSet):
         queryset = Book.objects.select_related('collection').filter(buy_inventory__gt=0)
         serializer = BookSerializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class CollectionViewSet(ModelViewSet):
+    queryset = Collection.objects.all()
+    serializer_class = CollectionSerializer
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [IsAuthenticated()]
+        else:
+            return [IsAuthenticated(), IsLibrarian()]
 
 
 @api_view()
