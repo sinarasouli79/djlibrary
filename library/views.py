@@ -103,7 +103,7 @@ class BookViewSet(ModelViewSet):
 
     def get_permissions(self):
         if self.request.method in ['POST', 'PUT', 'DELETE']:
-            return [IsLibrarian()]
+            return [IsAuthenticated(), IsLibrarian()]
         else:
             return [IsAuthenticated()]
 
