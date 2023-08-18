@@ -162,3 +162,27 @@ CELERY_BEAT_SCHEDULE = {
     }
 
 }
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{"
+        }
+    },
+    "handlers": {
+        "file": {
+            "class": "logging.FileHandler",
+            "filename": BASE_DIR / 'general.log',
+            "formatter": "verbose",
+        },
+    },
+    "loggers": {
+        "library": {
+            "handlers": ["file"],
+            "level": DEBUG
+        }
+    }
+}
