@@ -19,6 +19,7 @@ class BookFilter(FilterSet):
     class Meta:
         model = Book
         fields = {'collection': ['exact', ],
+                  'collection__borrow_price': ['gte', 'lte'],
                   'borrow_inventory': ['gte', 'lte'],
                   'buy_inventory': ['gte', 'lte'],
                   'buy_price': ['gte', 'lte'],
