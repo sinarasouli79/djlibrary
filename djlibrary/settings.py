@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'djoser',
     'django_filters',
     'drf_yasg',
+    'django_seed',
 
     # own
     'library',
