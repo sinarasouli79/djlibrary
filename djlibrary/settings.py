@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 import os
+import socket
 from datetime import timedelta
 from pathlib import Path
 
@@ -28,7 +29,6 @@ SECRET_KEY = 'django-insecure-kw+z9-1x^7o4g_c1zlc!^ye%bb#%$l9nj_9x)02n8pl&)_6)_#
 DEBUG = True
 
 ALLOWED_HOSTS = ['0.0.0.0', 'localhost']
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -54,6 +54,10 @@ INSTALLED_APPS = [
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+# use to show up debug toolbar on docker
+hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+INTERNAL_IPS += [".".join(ip.split(".")[:-1] + ["1"]) for ip in ips]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
