@@ -105,14 +105,27 @@ class BorrowListSerializer(serializers.ModelSerializer):
         fields = ['id', 'customer', 'book', 'borrow_date', 'expected_return_date', 'actual_return_date']
 
 
+class CreateCustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = ['id', 'user', 'balance', 'is_ban']
+
+
+class UpdateCustomerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = ['id', 'balance', 'is_ban']
+
+
 class CustomerListSerializer(serializers.ModelSerializer):
     user = serializers.StringRelatedField()
-    borrow_set = BorrowListSerializer(many=True)
-    borrow_count = serializers.IntegerField()
+    borrow_set = BorrowListSerializer(many=True, read_only=True)
+    borrow_count = serializers.IntegerField(read_only=True)
+    penalties_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Customer
-        fields = ['id', 'user', 'balance', 'is_ban', 'borrow_set', 'borrow_count']
+        fields = ['id', 'user', 'balance', 'is_ban', 'borrow_set', 'borrow_count', 'penalties_count']
 
 
 class CustomerPenaltiesListSerializer(serializers.ModelSerializer):

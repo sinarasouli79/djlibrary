@@ -1,18 +1,18 @@
 from django.db.models import Count
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework.backends import DjangoFilterBackend
-from rest_framework import mixins
 from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.viewsets import GenericViewSet, ModelViewSet
+from rest_framework.viewsets import ModelViewSet
 
 from library.filters import CustomerFilter, BookFilter, BorrowFilter
 from library.models import Borrow, Customer, Buy, Collection, Book
 from library.permissions import IsLibrarian
-from library.serializers import CreateBorrowSerializer, UpdateBorrowSerializer, CustomerListSerializer, \
-    CreateBuySerializer, BookSerializer, CustomerPenaltiesListSerializer, BorrowListSerializer, CollectionSerializer, \
-    BuySerializer
+from library.serializers import CreateBorrowSerializer, UpdateBorrowSerializer, CreateBuySerializer, BookSerializer, \
+    BorrowListSerializer, CollectionSerializer, \
+    BuySerializer, CustomerListSerializer, CreateCustomerSerializer, UpdateCustomerSerializer
 
 
 # Create your views here.
@@ -49,21 +49,28 @@ class BorrowViewSet(ModelViewSet):
             return CreateBorrowSerializer
 
 
-class CustomerListView(mixins.ListModelMixin,
-                       GenericViewSet):
+class CustomerViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, IsLibrarian]
     queryset = Customer.objects.select_related('user').prefetch_related('borrow_set__book__collection',
                                                                         'penalties_set', ).all().annotate(
         penalties_count=Count('penalties'), borrow_count=Count('borrow'))
-    serializer_class = CustomerListSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_class = CustomerFilter
     search_fields = ['borrow__book__title', 'borrow__book__collection__title', ]
+    http_method_names = ["get", "post", "patch", "delete", "head", "options", ]
 
-    @action(detail=False)
-    def penalties(self, request):
-        queryset = self.filter_queryset(self.get_queryset())
-        serializer = CustomerPenaltiesListSerializer(queryset, many=True)
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return CreateCustomerSerializer
+        elif self.request.method in ['PATCH']:
+            return UpdateCustomerSerializer
+        else:
+            return CustomerListSerializer
+
+    @action(detail=False, permission_classes=[IsAuthenticated])
+    def me(self, request, *args, **kwargs):
+        customer = get_object_or_404(Customer, user_id=request.user.id)
+        serializer = CustomerListSerializer(customer)
         return Response(serializer.data)
 
 
