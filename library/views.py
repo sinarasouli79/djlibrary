@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from library.filters import CustomerFilter, BookFilter, BorrowFilter
+from library.filters import BookFilter, BorrowFilter
 from library.models import Borrow, Customer, Buy, Collection, Book
 from library.permissions import IsLibrarian
 from library.serializers import CreateBorrowSerializer, UpdateBorrowSerializer, CreateBuySerializer, BookSerializer, \
@@ -54,9 +54,7 @@ class CustomerViewSet(ModelViewSet):
     queryset = Customer.objects.select_related('user').prefetch_related('borrow_set__book__collection',
                                                                         'penalties_set', ).all().annotate(
         penalties_count=Count('penalties'), borrow_count=Count('borrow'))
-    filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_class = CustomerFilter
-    search_fields = ['borrow__book__title', 'borrow__book__collection__title', ]
+
     http_method_names = ["get", "post", "patch", "delete", "head", "options", ]
 
     def get_serializer_class(self):
